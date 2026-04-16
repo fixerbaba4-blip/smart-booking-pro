@@ -8,7 +8,8 @@
     
     <title>Smart Booking Pro</title>
     
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json"> 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -1536,8 +1537,12 @@
         // ============================================
         // CONFIGURATION
         // ============================================
-        const SUPABASE_URL = 'https://your-project.supabase.co';
-        const SUPABASE_ANON_KEY = 'your-anon-key';
+        const SUPABASE_URL = 'https://xxiwhqibxbipedqjnhat.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4aXdocWlieGJpcGVkcWpuaGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzI0ODIsImV4cCI6MjA5MTg0ODQ4Mn0.9iPluoifI8hZd-Gi5uj4vIuTzn2333UDzgwxltDA8TU';
+        const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
         // ============================================
         // STATE MANAGEMENT
@@ -1605,36 +1610,53 @@
         }
 
         async function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
 
-            if (!email || !password) {
-                showToast('Please fill all fields', 'error');
-                return;
-            }
+    if (!email || !password) {
+        showToast('Please fill all fields', 'error');
+        return;
+    }
 
-            // Demo login (replace with Supabase)
-            const user = { id: 'user_' + Date.now(), email, name: email.split('@')[0] };
-            localStorage.setItem('sb_session', JSON.stringify(user));
-            currentUser = user;
-            showMpinSetup();
-        }
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+    });
 
-        async function handleSignup() {
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
+    if (error) {
+        showToast(error.message, 'error');
+        return;
+    }
 
-            if (!name || !email || !password) {
-                showToast('Please fill all fields', 'error');
-                return;
-            }
+    currentUser = data.user;
+    localStorage.setItem('sb_session', JSON.stringify(data.user));
+    showMpinSetup();
+}
 
-            const user = { id: 'user_' + Date.now(), email, name };
-            localStorage.setItem('sb_session', JSON.stringify(user));
-            currentUser = user;
-            showMpinSetup();
-        }
+
+async function handleSignup() {
+    const name = document.getElementById('signupName').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+
+    if (!name || !email || !password) {
+        showToast('Please fill all fields', 'error');
+        return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password
+    });
+
+    if (error) {
+        showToast(error.message, 'error');
+        return;
+    }
+
+    showToast("Signup successful! अब login करो", "success");
+    toggleAuthForm();
+}
 
         // ============================================
         // MPIN SYSTEM
