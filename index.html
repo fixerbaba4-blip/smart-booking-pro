@@ -1,424 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Booking Pro V2</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
-        /* PRO V2 - PREMIUM GLASSMORPHISM THEME */
-        :root {
-            --bg: #03050a; /* Ultra Dark Blue */
-            --card-bg: rgba(20, 26, 50, 0.6);
-            --border: rgba(255, 255, 255, 0.08);
-            --accent: #00f2ff; /* Neon Blue */
-            --pink: #ff006e; /* Neon Pink */
-            --text-p: #ffffff;
-            --text-s: #94a3b8;
-            --fs-b: 18px; /* Bigger Base Font */
-            --fs-h: 26px; /* Title Font */
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            --glow: 0 0 15px rgba(0, 242, 255, 0.5);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Booking Pro FINAL</title>
 
-        [data-theme="light"] {
-            --bg: #f1f5f9;
-            --card-bg: rgba(255, 255, 255, 0.8);
-            --border: rgba(0, 0, 0, 0.05);
-            --text-p: #0f172a;
-            --text-s: #64748b;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-        }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { 
-            background: var(--bg); 
-            color: var(--text-p); 
-            font-family: 'Inter', sans-serif; 
-            font-size: var(--fs-b);
-            overflow-x: hidden;
-            letter-spacing: -0.2px;
-        }
+<style>
+body{margin:0;background:#050816;color:#fff;font-family:sans-serif}
+.hidden{display:none}
+.container{padding:20px}
 
-        /* PREMIUM UTILITIES */
-        .hidden { display: none !important; }
-        
-        .glass { 
-            background: var(--card-bg); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid var(--border); 
-            border-radius: 24px; 
-            box-shadow: var(--shadow);
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+/* UI */
+.card{background:#151b3a;padding:15px;border-radius:12px;margin-bottom:10px}
+input,textarea{
+width:100%;padding:12px;margin:8px 0;border-radius:10px;border:none;background:#1f2749;color:#fff
+}
+button{padding:12px;border:none;border-radius:10px;width:100%;background:#00d9ff;color:#000}
 
-        .premium-text {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent), var(--pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+/* MPIN */
+.mpin{display:flex;gap:10px;justify-content:center;margin:20px}
+.dot{width:15px;height:15px;border:2px solid #00d9ff;border-radius:50%}
+.fill{background:#00d9ff}
 
-        /* 1. LOGIN ANIMATION (Kitaab Flip) */
-        .auth-wrapper {
-            position: fixed; inset: 0; background: var(--bg); z-index: 1000;
-            display: flex; align-items: center; justify-content: center;
-            perspective: 1500px;
-        }
+/* FAB */
+.fab{position:fixed;bottom:80px;right:20px;background:#ff006e;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px}
 
-        .book-cover {
-            width: 90%; max-width: 400px;
-            padding: 40px 30px;
-            transform-style: preserve-3d;
-            animation: bookFlip 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-            opacity: 0;
-        }
-
-        @keyframes bookFlip {
-            0% { transform: rotateY(-90deg) translateZ(100px); opacity: 0; }
-            100% { transform: rotateY(0deg); opacity: 1; }
-        }
-
-        /* INPUT FIELDS (Premium Style) */
-        input, select, textarea {
-            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border);
-            color: var(--text-p); padding: 18px; border-radius: 16px; 
-            margin-bottom: 20px; font-size: 16px; font-family: 'Inter';
-            transition: 0.3s;
-        }
-
-        input:focus, select:focus { border-color: var(--accent); box-shadow: var(--glow); }
-
-        /* BUTTONS (Bigger & Glow) */
-        .btn-premium {
-            background: linear-gradient(135deg, var(--accent), var(--pink));
-            color: #000; border: none; padding: 18px;
-            border-radius: 16px; font-weight: 700; width: 100%;
-            font-size: 18px; text-transform: uppercase; letter-spacing: 1px;
-            cursor: pointer; transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 0, 110, 0.2);
-        }
-
-        .btn-premium:active { transform: scale(0.97); }
-
-        /* 2. MPIN SCREEN */
-        .mpin-dot-group { display: flex; gap: 20px; justify-content: center; margin: 30px 0; }
-        .mpin-dot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--border); transition: 0.3s; }
-        .mpin-dot.filled { background: var(--accent); border-color: var(--accent); box-shadow: var(--glow); }
-
-        /* 3. MAIN APP & DASHBOARD */
-        .header { padding: 30px 20px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; }
-        .stat-box { padding: 20px; text-align: center; border-bottom: 4px solid var(--accent); }
-        .stat-box b { font-size: 26px; color: var(--accent); font-family: 'Poppins'; }
-
-        /* BOOKING CARDS (Premium List) */
-        .booking-list { padding: 25px 20px 120px 20px; }
-        .booking-card { margin-bottom: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .booking-card:active { background: rgba(255,255,255,0.05); }
-
-        /* ADSTERRA PLACEMENTS */
-        .ad-banner { width: 100%; text-align: center; background: rgba(0,0,0,0.5); padding: 5px; color: #555; font-size: 10px; margin-bottom: 15px; }
-
-        /* BOTTOM NAV */
-        .nav-bar {
-            position: fixed; bottom: 0; width: 100%; height: 85px;
-            background: rgba(10, 14, 39, 0.9); backdrop-filter: blur(15px);
-            display: flex; justify-content: space-around; align-items: center;
-            border-top: 1px solid var(--border); z-index: 400;
-        }
-        .nav-item { color: var(--text-s); text-align: center; font-size: 13px; font-weight: 500; }
-        .nav-item.active { color: var(--accent); }
-        .nav-icon { font-size: 26px; margin-bottom: 5px; }
-
-        /* FAB */
-        .fab {
-            position: fixed; bottom: 100px; right: 25px;
-            width: 70px; height: 70px; background: linear-gradient(135deg, var(--accent), var(--pink));
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 25px rgba(255, 0, 110, 0.4); z-index: 399;
-            color: #000; font-size: 36px; border: none;
-        }
-
-        /* BOTTOM SHEET FORM */
-        .bottom-sheet {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: #0a1128; border-radius: 32px 32px 0 0;
-            padding: 40px 25px; z-index: 500;
-            transform: translateY(100%); transition: 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            max-height: 92vh; overflow-y: auto;
-            border-top: 1px solid var(--border);
-        }
-        .bottom-sheet.open { transform: translateY(0); }
-        .sheet-handler { width: 60px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: -20px auto 30px auto; }
-
-    </style>
+/* SHEET */
+.sheet{position:fixed;bottom:0;width:100%;background:#111;padding:20px;transform:translateY(100%);transition:.3s}
+.sheet.open{transform:translateY(0)}
+</style>
 </head>
+
 <body>
 
-    <div class="ad-banner">AD PLACEMENT TOP</div>
+<!-- AUTH -->
+<div id="auth" class="container">
+<h2>Login</h2>
+<input id="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="auth()">Continue</button>
+<p onclick="toggle()">Switch</p>
+</div>
 
-    <div id="authScreen" class="auth-wrapper">
-        <div class="glass book-cover">
-            <h1 class="premium-text" style="text-align: center; font-size: 32px; margin-bottom: 10px;">Smart Pro</h1>
-            <p style="text-align: center; color: var(--text-s); margin-bottom: 40px;">Professional Event Manager</p>
-            
-            <input type="email" id="email" placeholder="Email Address">
-            <input type="password" id="password" placeholder="Password">
-            
-            <button class="btn-premium" onclick="haptic(); handleAuth();">Get Started</button>
-            <p id="authToggle" onclick="toggleAuthMode()" style="text-align:center; margin-top:20px; font-size:15px; color: var(--accent);">New user? Sign Up</p>
-        </div>
-    </div>
+<!-- MPIN -->
+<div id="mpin" class="hidden">
+<h3 style="text-align:center">Enter MPIN</h3>
+<div class="mpin">
+<div class="dot"></div><div class="dot"></div>
+<div class="dot"></div><div class="dot"></div>
+</div>
+<input id="mpinInput" style="opacity:0">
+</div>
 
-    <div id="mpinScreen" class="auth-wrapper hidden">
-        <div style="text-align:center;">
-            <h2 class="premium-text">Enter Secure MPIN</h2>
-            <p style="color:var(--text-s); margin-bottom: 20px;">4-Digit Security Code</p>
-            <div class="mpin-dot-group" id="mpinDots">
-                <div class="mpin-dot"></div>
-                <div class="mpin-dot"></div>
-                <div class="mpin-dot"></div>
-                <div class="mpin-dot"></div>
-            </div>
-            <input type="number" id="mpinHiddenInput" pattern="\d*" inputmode="numeric" style="opacity: 0; position: absolute;">
-        </div>
-    </div>
+<!-- APP -->
+<div id="app" class="hidden">
 
-    <div id="app" class="hidden">
-        <div class="header">
-            <div>
-                <small style="color:var(--text-s)">Welcome back,</small>
-                <h2 id="userName" style="font-family:'Poppins'">User</h2>
-            </div>
-            <button onclick="logout()" style="background:none; border:none; color:var(--pink); font-size: 15px;">Logout</button>
-        </div>
+<div class="container">
+<h3>Dashboard</h3>
+<button onclick="logout()">Logout</button>
 
-        <div class="stat-grid">
-            <div class="glass stat-box">
-                <small style="color:var(--text-s)">Events</small><br><b id="statTotal">0</b>
-            </div>
-            <div class="glass stat-box">
-                <small style="color:var(--text-s)">Pending ₹</small><br><b id="statPending" style="color:var(--pink)">0</b>
-            </div>
-        </div>
+<div class="card">
+Total: <b id="total">0</b><br>
+Pending: <b id="pending">0</b>
+</div>
 
-        <div class="booking-list" id="bookingContainer">
+<div id="list"></div>
+</div>
+
+<div class="fab" onclick="openForm()">+</div>
+
+<div id="sheet" class="sheet">
+<input id="name" placeholder="Party Name">
+<input id="mobile" placeholder="Mobile">
+<input id="date" type="date">
+<input id="time" type="time">
+<input id="loc" placeholder="Location">
+<input id="totalAmt" type="number" placeholder="Total">
+<input id="advAmt" type="number" placeholder="Advance">
+<textarea id="notes"></textarea>
+<button onclick="save()">Save</button>
+</div>
+
+</div>
+<script>
+
+/* ========= SUPABASE ========= */
+const SB_URL = 'YOUR_SUPABASE_URL';
+const SB_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+let isLogin = true;
+let currentUser = null;
+let allData = [];
+
+/* ========= AUTO LOGIN ========= */
+window.onload = async () => {
+    const { data } = await sb.auth.getSession();
+    if(data.session){
+        currentUser = data.session.user;
+        openAppDirect();
+    }
+};
+
+/* ========= AUTH ========= */
+async function handleAuth(){
+    const email = emailEl.value;
+    const password = passwordEl.value;
+
+    if(!email || !password) return alert("Fill all fields");
+
+    if(isLogin){
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if(error) return alert(error.message);
+        currentUser = data.user;
+        startAppFlow();
+    }else{
+        const { error } = await sb.auth.signUp({ email, password });
+        if(error) alert(error.message);
+        else alert("Signup done, now login");
+    }
+}
+
+function toggleAuthMode(){
+    isLogin = !isLogin;
+}
+
+/* ========= MPIN ========= */
+function startAppFlow(){
+    authScreen.classList.add('hidden');
+    mpinScreen.classList.remove('hidden');
+    setupMPIN();
+}
+
+function setupMPIN(){
+    const input = mpinHiddenInput;
+    const dots = document.querySelectorAll('.mpin-dot');
+
+    input.value = '';
+    input.focus();
+
+    input.oninput = (e)=>{
+        const val = e.target.value;
+
+        dots.forEach((d,i)=>d.classList.toggle('filled', i<val.length));
+
+        if(val.length===4){
+            const key = "mpin_"+currentUser.id;
+            const saved = localStorage.getItem(key);
+
+            if(!saved){
+                localStorage.setItem(key,val);
+                openApp();
+            }else if(val===saved){
+                openApp();
+            }else{
+                alert("Wrong MPIN");
+                input.value='';
+                dots.forEach(d=>d.classList.remove('filled'));
+            }
+        }
+    };
+}
+
+/* ========= OPEN APP ========= */
+function openApp(){
+    mpinScreen.classList.add('hidden');
+    app.classList.remove('hidden');
+    userName.innerText = currentUser.email.split('@')[0];
+    loadBookings();
+}
+
+function openAppDirect(){
+    authScreen.classList.add('hidden');
+    app.classList.remove('hidden');
+    userName.innerText = currentUser.email.split('@')[0];
+    loadBookings();
+}
+
+/* ========= FORM ========= */
+function openForm(){ bookingSheet.classList.add('open'); }
+function closeForm(){ bookingSheet.classList.remove('open'); }
+
+/* ========= CALC ========= */
+function calcRemaining(){
+    const t = +fTotal.value || 0;
+    const a = +fAdv.value || 0;
+    fRem.innerText = t-a;
+}
+
+/* ========= SAVE ========= */
+async function saveBooking(){
+
+    const data = {
+        user_id: currentUser.id,
+        party_name: fParty.value,
+        mobile: fMobile.value,
+        event_date: fDate.value,
+        start_time: fTime.value,
+        location: fLoc.value,
+        total_amount: +fTotal.value || 0,
+        advance_paid: +fAdv.value || 0,
+        notes: fNotes.value
+    };
+
+    const { error } = await sb.from('bookings').insert([data]);
+    if(error) return alert(error.message);
+
+    resetForm();
+    closeForm();
+    loadBookings();
+}
+
+/* ========= RESET ========= */
+function resetForm(){
+    document.querySelectorAll('#bookingSheet input, #bookingSheet textarea')
+        .forEach(i=>i.value='');
+}
+
+/* ========= LOAD ========= */
+async function loadBookings(){
+
+    const { data, error } = await sb
+        .from('bookings')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('event_date',{ascending:true});
+
+    if(error) return alert(error.message);
+
+    allData = data;
+    renderBookings(data);
+}
+
+/* ========= RENDER ========= */
+function renderBookings(data){
+
+    bookingContainer.innerHTML = '';
+
+    let grouped = {};
+    let pending = 0;
+
+    data.forEach(b=>{
+        if(!grouped[b.event_date]) grouped[b.event_date]=[];
+        grouped[b.event_date].push(b);
+
+        pending += (b.total_amount - b.advance_paid);
+    });
+
+    Object.keys(grouped).forEach(date=>{
+
+        let total = 0;
+        grouped[date].forEach(b=> total += b.total_amount);
+
+        bookingContainer.innerHTML += `
+        <div class="glass booking-card">
+            <b>${date}</b><br>
+            <small>₹${total} total</small>
+        </div>`;
+
+        grouped[date].forEach(b=>{
+
+            const msg = `
+Booking Confirmed
+Party: ${b.party_name}
+Date: ${b.event_date}
+Amount: ₹${b.total_amount}
+Remaining: ₹${b.total_amount - b.advance_paid}
+`;
+
+            const wa = `https://wa.me/${b.mobile}?text=${encodeURIComponent(msg)}`;
+
+            bookingContainer.innerHTML += `
             <div class="glass booking-card">
                 <div>
-                    <b>Rahul Wedding</b><br>
-                    <small style="color:var(--text-s)">📅 20 April 2026 | 📍 Bhopal Palace</small>
+                    <b>${b.party_name}</b><br>
+                    <small>${b.location || ''}</small>
                 </div>
                 <div style="text-align:right;">
-                    <b style="color:var(--accent)">₹25k</b><br>
-                    <small style="color:var(--pink)">₹10k left</small>
+                    ₹${b.total_amount}<br>
+                    <small style="color:red">₹${b.total_amount - b.advance_paid}</small>
+                    <br>
+                    <button onclick="editBooking('${b.id}')">✏️</button>
+                    <button onclick="deleteBooking('${b.id}')">🗑️</button>
+                    <a href="${wa}" target="_blank">📲</a>
                 </div>
-            </div>
-        </div>
+            </div>`;
+        });
 
-        <button class="fab" onclick="haptic(); openForm();">+</button>
+    });
 
-        <nav class="nav-bar">
-            <div class="nav-item active">
-                <div class="nav-icon">📊</div>
-                Dashboard
-            </div>
-            <div class="nav-item">
-                <div class="nav-icon">📋</div>
-                Bookings
-            </div>
-            <div class="nav-item">
-                <div class="nav-icon">📈</div>
-                Reports
-            </div>
-        </nav>
-    </div>
+    statTotal.innerText = data.length;
+    statPending.innerText = '₹'+pending;
+}
 
-    <div id="bookingSheet" class="bottom-sheet glass">
-        <div class="sheet-handler" onclick="closeForm()"></div>
-        <h2 class="premium-text" style="margin-bottom:30px;">Add New Event</h2>
-        
-        <input type="text" id="fParty" placeholder="Customer Name *">
-        <input type="tel" id="fMobile" placeholder="Mobile (WhatsApp)">
-        
-        <label style="color:var(--text-s)">Event Date & Time</label>
-        <div style="display:flex; gap:15px;">
-            <input type="date" id="fDate">
-            <input type="time" id="fTime">
-        </div>
+/* ========= DELETE ========= */
+async function deleteBooking(id){
+    if(!confirm("Delete?")) return;
 
-        <input type="text" id="fLoc" placeholder="Event Venue/Address">
+    await sb.from('bookings').delete().eq('id',id);
+    loadBookings();
+}
 
-        <label style="color:var(--text-s)">Payment Details</label>
-        <div style="display:flex; gap:15px;">
-            <input type="number" id="fTotal" placeholder="Total Deal ₹" oninput="calcRemaining()">
-            <input type="number" id="fAdv" placeholder="Advance ₹" oninput="calcRemaining()">
-        </div>
-        <p style="margin-bottom:20px; font-size:16px; color:var(--accent); text-align:right;">Remaining: ₹<span id="fRem">0</span></p>
+/* ========= EDIT ========= */
+function editBooking(id){
+    const b = allData.find(x=>x.id===id);
 
-        <textarea id="fNotes" rows="3" placeholder="Special Note (Sound, Light, Food...)"></textarea>
+    fParty.value = b.party_name;
+    fMobile.value = b.mobile;
+    fDate.value = b.event_date;
+    fTime.value = b.start_time;
+    fLoc.value = b.location;
+    fTotal.value = b.total_amount;
+    fAdv.value = b.advance_paid;
+    fNotes.value = b.notes;
 
-        <button class="btn-premium" onclick="haptic(); saveBooking();">Confirm Event</button>
-    </div>
+    deleteBooking(id);
+    openForm();
+}
 
-    <script>
-        // --- PRO V2 - FULL FUNCTIONAL SCRIPT WITH PREMIUM UI CONTROL ---
+/* ========= SEARCH ========= */
+function searchBooking(val){
+    const filtered = allData.filter(b=>
+        b.party_name.toLowerCase().includes(val.toLowerCase())
+    );
+    renderBookings(filtered);
+}
 
-        // Supabase Connection (Same Keys)
-        const SB_URL = 'YOUR_SUPABASE_URL';
-        const SB_KEY = 'YOUR_SUPABASE_ANON_KEY';
-        const supabase = supabase.createClient(SB_URL, SB_KEY);
+/* ========= LOGOUT ========= */
+function logout(){
+    sb.auth.signOut();
+    location.reload();
+}
 
-        let isLogin = true;
-        let currentUser = null;
+</script>
 
-        // Session Check on Load
-        window.onload = async () => {
-            const { data } = await supabase.auth.getSession();
-            if(data.session) {
-                currentUser = data.session.user;
-                startAppFlow();
-            }
-        };
-
-        // Haptic Feedback (Vibration)
-        function haptic() { if('vibrate' in navigator) navigator.vibrate(15); }
-
-        // --- AUTH FLOW ---
-        async function handleAuth() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            if(!email || !password) return alert("Fill all fields");
-
-            if(isLogin) {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if(error) alert(error.message);
-                else { currentUser = data.user; startAppFlow(); }
-            } else {
-                const { error } = await supabase.auth.signUp({ email, password });
-                if(error) alert(error.message);
-                else alert("Signup Success! Now Login.");
-            }
-        }
-
-        function toggleAuthMode() {
-            isLogin = !isLogin;
-            document.getElementById('authToggle').innerText = isLogin ? 'New user? Sign Up' : 'Already a user? Login';
-        }
-
-        // --- MPIN SECURITY ---
-        function startAppFlow() {
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('mpinScreen').classList.remove('hidden');
-            setupMPINLogic();
-        }
-
-        function setupMPINLogic() {
-            const input = document.getElementById('mpinHiddenInput');
-            const dots = document.querySelectorAll('.mpin-dot');
-            input.focus();
-
-            input.addEventListener('input', (e) => {
-                const val = e.target.value;
-                dots.forEach((dot, i) => {
-                    dot.classList.toggle('filled', i < val.length);
-                });
-
-                if(val.length === 4) {
-                    const saved = localStorage.getItem('user_mpin_' + currentUser.id);
-                    if(!saved) {
-                        localStorage.setItem('user_mpin_' + currentUser.id, val);
-                        alert("MPIN Set Successfully!");
-                        openApp();
-                    } else if(val === saved) {
-                        openApp();
-                    } else {
-                        alert("Wrong MPIN!");
-                        input.value = '';
-                        dots.forEach(d => d.classList.remove('filled'));
-                    }
-                }
-            });
-        }
-
-        // --- APP MAIN LOGIC ---
-        function openApp() {
-            document.getElementById('mpinScreen').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            document.getElementById('userName').innerText = currentUser.email.split('@')[0];
-            loadBookings();
-        }
-
-        function openForm() { document.getElementById('bookingSheet').classList.add('open'); }
-        function closeModal() { document.getElementById('bookingSheet').classList.remove('open'); }
-
-        function calcRemaining() {
-            const total = parseInt(document.getElementById('fTotal').value) || 0;
-            const adv = parseInt(document.getElementById('fAdv').value) || 0;
-            document.getElementById('fRem').innerText = (total - adv).toLocaleString('en-IN');
-        }
-
-        // SAVE TO SUPABASE
-        async function saveBooking() {
-            const bookingData = {
-                user_id: currentUser.id,
-                party_name: document.getElementById('fParty').value,
-                mobile: document.getElementById('fMobile').value,
-                event_date: document.getElementById('fDate').value,
-                start_time: document.getElementById('fTime').value,
-                location: document.getElementById('fLoc').value,
-                total_amount: parseInt(document.getElementById('fTotal').value) || 0,
-                advance_paid: parseInt(document.getElementById('fAdv').value) || 0,
-                notes: document.getElementById('fNotes').value
-            };
-
-            const { error } = await supabase.from('bookings').insert([bookingData]);
-            if(error) alert("Error: " + error.message);
-            else {
-                alert("Booking Saved in Supabase!");
-                closeModal();
-                loadBookings();
-                // Clear Form Fields
-            }
-        }
-
-        // LOAD FROM SUPABASE
-        async function loadBookings() {
-            const { data, error } = await supabase.from('bookings').select('*').order('event_date', { ascending: true });
-            
-            if(data) {
-                const container = document.getElementById('bookingContainer');
-                container.innerHTML = '';
-                let pendingAmt = 0;
-
-                data.forEach(b => {
-                    pendingAmt += (b.total_amount - b.advance_paid);
-                    
-                    container.innerHTML += `
-                        <div class="glass booking-card">
-                            <div>
-                                <b style="font-size:18px;">${b.party_name}</b><br>
-                                <small style="color:var(--text-s)">📅 ${b.event_date} | 📍 ${b.location || 'TBD'}</small>
-                            </div>
-                            <div style="text-align:right;">
-                                <b style="color:var(--accent); font-size:18px;">₹${(b.total_amount/1000).toFixed(1)}k</b><br>
-                                <small style="color:var(--pink)">₹${((b.total_amount - b.advance_paid)/1000).toFixed(1)}k left</small>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                document.getElementById('statTotal').innerText = data.length;
-                document.getElementById('statPending').innerText = '₹' + (pendingAmt/1000).toFixed(1) + 'k';
-            }
-        }
-
-        function logout() { supabase.auth.signOut(); location.reload(); }
-    </script>
 </body>
 </html>
