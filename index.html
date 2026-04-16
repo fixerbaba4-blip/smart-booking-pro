@@ -1,291 +1,424 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Booking Pro MAX</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Booking Pro V2</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* PRO V2 - PREMIUM GLASSMORPHISM THEME */
+        :root {
+            --bg: #03050a; /* Ultra Dark Blue */
+            --card-bg: rgba(20, 26, 50, 0.6);
+            --border: rgba(255, 255, 255, 0.08);
+            --accent: #00f2ff; /* Neon Blue */
+            --pink: #ff006e; /* Neon Pink */
+            --text-p: #ffffff;
+            --text-s: #94a3b8;
+            --fs-b: 18px; /* Bigger Base Font */
+            --fs-h: 26px; /* Title Font */
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --glow: 0 0 15px rgba(0, 242, 255, 0.5);
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --border: rgba(0, 0, 0, 0.05);
+            --text-p: #0f172a;
+            --text-s: #64748b;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
 
-<style>
-:root{
---bg:#050816;--card:#151b3a;--accent:#00d9ff;--pink:#ff006e;
---text:#fff;
-}
-body{margin:0;font-family:sans-serif;background:var(--bg);color:var(--text);}
-.hidden{display:none}
-.container{padding:20px;max-width:500px;margin:auto}
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { 
+            background: var(--bg); 
+            color: var(--text-p); 
+            font-family: 'Inter', sans-serif; 
+            font-size: var(--fs-b);
+            overflow-x: hidden;
+            letter-spacing: -0.2px;
+        }
 
-/* UI */
-.card{background:var(--card);padding:15px;border-radius:15px;margin-bottom:10px}
-input,select,textarea{
-width:100%;padding:12px;margin:8px 0;border-radius:10px;
-border:none;background:#1f2749;color:white
-}
-button{padding:12px;border:none;border-radius:10px;font-weight:bold;width:100%}
-.btn{background:var(--accent);color:black}
+        /* PREMIUM UTILITIES */
+        .hidden { display: none !important; }
+        
+        .glass { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid var(--border); 
+            border-radius: 24px; 
+            box-shadow: var(--shadow);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-/* MPIN */
-.mpin{display:flex;gap:10px;justify-content:center;margin-top:20px}
-.dot{width:15px;height:15px;border:2px solid var(--accent);border-radius:50%}
-.dot.fill{background:var(--accent)}
+        .premium-text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-/* FAB */
-.fab{
-position:fixed;bottom:80px;right:20px;width:60px;height:60px;
-background:linear-gradient(45deg,#00d9ff,#ff006e);
-border-radius:50%;display:flex;align-items:center;justify-content:center;
-font-size:28px;color:white;
-}
+        /* 1. LOGIN ANIMATION (Kitaab Flip) */
+        .auth-wrapper {
+            position: fixed; inset: 0; background: var(--bg); z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            perspective: 1500px;
+        }
 
-/* NAV */
-.nav{
-position:fixed;bottom:0;width:100%;background:#111;
-display:flex;justify-content:space-around;padding:10px
-}
+        .book-cover {
+            width: 90%; max-width: 400px;
+            padding: 40px 30px;
+            transform-style: preserve-3d;
+            animation: bookFlip 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            opacity: 0;
+        }
 
-/* Sheet */
-.sheet{
-position:fixed;bottom:0;width:100%;background:#111;padding:20px;
-transform:translateY(100%);transition:.3s
-}
-.sheet.open{transform:translateY(0)}
-</style>
+        @keyframes bookFlip {
+            0% { transform: rotateY(-90deg) translateZ(100px); opacity: 0; }
+            100% { transform: rotateY(0deg); opacity: 1; }
+        }
+
+        /* INPUT FIELDS (Premium Style) */
+        input, select, textarea {
+            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+            color: var(--text-p); padding: 18px; border-radius: 16px; 
+            margin-bottom: 20px; font-size: 16px; font-family: 'Inter';
+            transition: 0.3s;
+        }
+
+        input:focus, select:focus { border-color: var(--accent); box-shadow: var(--glow); }
+
+        /* BUTTONS (Bigger & Glow) */
+        .btn-premium {
+            background: linear-gradient(135deg, var(--accent), var(--pink));
+            color: #000; border: none; padding: 18px;
+            border-radius: 16px; font-weight: 700; width: 100%;
+            font-size: 18px; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 0, 110, 0.2);
+        }
+
+        .btn-premium:active { transform: scale(0.97); }
+
+        /* 2. MPIN SCREEN */
+        .mpin-dot-group { display: flex; gap: 20px; justify-content: center; margin: 30px 0; }
+        .mpin-dot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--border); transition: 0.3s; }
+        .mpin-dot.filled { background: var(--accent); border-color: var(--accent); box-shadow: var(--glow); }
+
+        /* 3. MAIN APP & DASHBOARD */
+        .header { padding: 30px 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; }
+        .stat-box { padding: 20px; text-align: center; border-bottom: 4px solid var(--accent); }
+        .stat-box b { font-size: 26px; color: var(--accent); font-family: 'Poppins'; }
+
+        /* BOOKING CARDS (Premium List) */
+        .booking-list { padding: 25px 20px 120px 20px; }
+        .booking-card { margin-bottom: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .booking-card:active { background: rgba(255,255,255,0.05); }
+
+        /* ADSTERRA PLACEMENTS */
+        .ad-banner { width: 100%; text-align: center; background: rgba(0,0,0,0.5); padding: 5px; color: #555; font-size: 10px; margin-bottom: 15px; }
+
+        /* BOTTOM NAV */
+        .nav-bar {
+            position: fixed; bottom: 0; width: 100%; height: 85px;
+            background: rgba(10, 14, 39, 0.9); backdrop-filter: blur(15px);
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid var(--border); z-index: 400;
+        }
+        .nav-item { color: var(--text-s); text-align: center; font-size: 13px; font-weight: 500; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 26px; margin-bottom: 5px; }
+
+        /* FAB */
+        .fab {
+            position: fixed; bottom: 100px; right: 25px;
+            width: 70px; height: 70px; background: linear-gradient(135deg, var(--accent), var(--pink));
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 25px rgba(255, 0, 110, 0.4); z-index: 399;
+            color: #000; font-size: 36px; border: none;
+        }
+
+        /* BOTTOM SHEET FORM */
+        .bottom-sheet {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #0a1128; border-radius: 32px 32px 0 0;
+            padding: 40px 25px; z-index: 500;
+            transform: translateY(100%); transition: 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            max-height: 92vh; overflow-y: auto;
+            border-top: 1px solid var(--border);
+        }
+        .bottom-sheet.open { transform: translateY(0); }
+        .sheet-handler { width: 60px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: -20px auto 30px auto; }
+
+    </style>
 </head>
-
 <body>
 
-<!-- AUTH -->
-<div id="auth" class="container">
-<h2>Smart Booking PRO</h2>
-<input id="email" placeholder="Email">
-<input id="pass" type="password" placeholder="Password">
-<button class="btn" onclick="auth()">Continue</button>
-<p onclick="toggleAuth()">Switch Login/Signup</p>
-</div>
+    <div class="ad-banner">AD PLACEMENT TOP</div>
 
-<!-- MPIN -->
-<div id="mpinScreen" class="container hidden">
-<h3>Enter MPIN</h3>
-<div class="mpin">
-<div class="dot"></div><div class="dot"></div>
-<div class="dot"></div><div class="dot"></div>
-</div>
-<input id="mpinInput" style="opacity:0">
-</div>
+    <div id="authScreen" class="auth-wrapper">
+        <div class="glass book-cover">
+            <h1 class="premium-text" style="text-align: center; font-size: 32px; margin-bottom: 10px;">Smart Pro</h1>
+            <p style="text-align: center; color: var(--text-s); margin-bottom: 40px;">Professional Event Manager</p>
+            
+            <input type="email" id="email" placeholder="Email Address">
+            <input type="password" id="password" placeholder="Password">
+            
+            <button class="btn-premium" onclick="haptic(); handleAuth();">Get Started</button>
+            <p id="authToggle" onclick="toggleAuthMode()" style="text-align:center; margin-top:20px; font-size:15px; color: var(--accent);">New user? Sign Up</p>
+        </div>
+    </div>
 
-<!-- APP -->
-<div id="app" class="hidden">
+    <div id="mpinScreen" class="auth-wrapper hidden">
+        <div style="text-align:center;">
+            <h2 class="premium-text">Enter Secure MPIN</h2>
+            <p style="color:var(--text-s); margin-bottom: 20px;">4-Digit Security Code</p>
+            <div class="mpin-dot-group" id="mpinDots">
+                <div class="mpin-dot"></div>
+                <div class="mpin-dot"></div>
+                <div class="mpin-dot"></div>
+                <div class="mpin-dot"></div>
+            </div>
+            <input type="number" id="mpinHiddenInput" pattern="\d*" inputmode="numeric" style="opacity: 0; position: absolute;">
+        </div>
+    </div>
 
-<div style="background:black;text-align:center">AD TOP</div>
+    <div id="app" class="hidden">
+        <div class="header">
+            <div>
+                <small style="color:var(--text-s)">Welcome back,</small>
+                <h2 id="userName" style="font-family:'Poppins'">User</h2>
+            </div>
+            <button onclick="logout()" style="background:none; border:none; color:var(--pink); font-size: 15px;">Logout</button>
+        </div>
 
-<div class="container">
-<h3>Dashboard</h3>
-<button onclick="logout()">Logout</button>
+        <div class="stat-grid">
+            <div class="glass stat-box">
+                <small style="color:var(--text-s)">Events</small><br><b id="statTotal">0</b>
+            </div>
+            <div class="glass stat-box">
+                <small style="color:var(--text-s)">Pending ₹</small><br><b id="statPending" style="color:var(--pink)">0</b>
+            </div>
+        </div>
 
-<div class="card">
-Total: <b id="total">0</b><br>
-Pending: <b id="pending">0</b>
-</div>
+        <div class="booking-list" id="bookingContainer">
+            <div class="glass booking-card">
+                <div>
+                    <b>Rahul Wedding</b><br>
+                    <small style="color:var(--text-s)">📅 20 April 2026 | 📍 Bhopal Palace</small>
+                </div>
+                <div style="text-align:right;">
+                    <b style="color:var(--accent)">₹25k</b><br>
+                    <small style="color:var(--pink)">₹10k left</small>
+                </div>
+            </div>
+        </div>
 
-<canvas id="chart"></canvas>
+        <button class="fab" onclick="haptic(); openForm();">+</button>
 
-<div id="list"></div>
-</div>
+        <nav class="nav-bar">
+            <div class="nav-item active">
+                <div class="nav-icon">📊</div>
+                Dashboard
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">📋</div>
+                Bookings
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">📈</div>
+                Reports
+            </div>
+        </nav>
+    </div>
 
-<div class="fab" onclick="openForm()">+</div>
+    <div id="bookingSheet" class="bottom-sheet glass">
+        <div class="sheet-handler" onclick="closeForm()"></div>
+        <h2 class="premium-text" style="margin-bottom:30px;">Add New Event</h2>
+        
+        <input type="text" id="fParty" placeholder="Customer Name *">
+        <input type="tel" id="fMobile" placeholder="Mobile (WhatsApp)">
+        
+        <label style="color:var(--text-s)">Event Date & Time</label>
+        <div style="display:flex; gap:15px;">
+            <input type="date" id="fDate">
+            <input type="time" id="fTime">
+        </div>
 
-<div class="nav">
-<div>Home</div>
-<div onclick="load()">Refresh</div>
-</div>
+        <input type="text" id="fLoc" placeholder="Event Venue/Address">
 
-<div id="sheet" class="sheet">
-<h3>Add Booking</h3>
-<input id="name" placeholder="Party Name">
-<input id="mobile" placeholder="Mobile">
+        <label style="color:var(--text-s)">Payment Details</label>
+        <div style="display:flex; gap:15px;">
+            <input type="number" id="fTotal" placeholder="Total Deal ₹" oninput="calcRemaining()">
+            <input type="number" id="fAdv" placeholder="Advance ₹" oninput="calcRemaining()">
+        </div>
+        <p style="margin-bottom:20px; font-size:16px; color:var(--accent); text-align:right;">Remaining: ₹<span id="fRem">0</span></p>
 
-<select id="type" onchange="customEvent(this)">
-<option>DJ</option>
-<option>Wedding</option>
-<option value="custom">+Custom</option>
-</select>
-<input id="custom" class="hidden" placeholder="Custom Type">
+        <textarea id="fNotes" rows="3" placeholder="Special Note (Sound, Light, Food...)"></textarea>
 
-<input id="date" type="date">
-<input id="time" type="time">
-<input id="loc" placeholder="Location">
+        <button class="btn-premium" onclick="haptic(); saveBooking();">Confirm Event</button>
+    </div>
 
-<input id="totalAmt" type="number" placeholder="Total">
-<input id="advAmt" type="number" placeholder="Advance">
+    <script>
+        // --- PRO V2 - FULL FUNCTIONAL SCRIPT WITH PREMIUM UI CONTROL ---
 
-<textarea id="notes"></textarea>
+        // Supabase Connection (Same Keys)
+        const SB_URL = 'YOUR_SUPABASE_URL';
+        const SB_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = supabase.createClient(SB_URL, SB_KEY);
 
-<button class="btn" onclick="save()">Save</button>
-</div>
+        let isLogin = true;
+        let currentUser = null;
 
-</div>
+        // Session Check on Load
+        window.onload = async () => {
+            const { data } = await supabase.auth.getSession();
+            if(data.session) {
+                currentUser = data.session.user;
+                startAppFlow();
+            }
+        };
 
-<script>
-// SUPABASE
-const url="YOUR_URL";
-const key="YOUR_KEY";
-const sb=supabase.createClient(url,key);
+        // Haptic Feedback (Vibration)
+        function haptic() { if('vibrate' in navigator) navigator.vibrate(15); }
 
-let isLogin=true;
-let mpin=localStorage.getItem("mpin");
+        // --- AUTH FLOW ---
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if(!email || !password) return alert("Fill all fields");
 
-// AUTH
-async function auth(){
-let email=emailEl.value,pass=passEl.value;
+            if(isLogin) {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if(error) alert(error.message);
+                else { currentUser = data.user; startAppFlow(); }
+            } else {
+                const { error } = await supabase.auth.signUp({ email, password });
+                if(error) alert(error.message);
+                else alert("Signup Success! Now Login.");
+            }
+        }
 
-if(isLogin){
-let {error}=await sb.auth.signInWithPassword({email,password:pass});
-if(error)return alert(error.message);
-start();
-}else{
-await sb.auth.signUp({email,password:pass});
-alert("Signup done");
-}
-}
+        function toggleAuthMode() {
+            isLogin = !isLogin;
+            document.getElementById('authToggle').innerText = isLogin ? 'New user? Sign Up' : 'Already a user? Login';
+        }
 
-function toggleAuth(){isLogin=!isLogin}
+        // --- MPIN SECURITY ---
+        function startAppFlow() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mpinScreen').classList.remove('hidden');
+            setupMPINLogic();
+        }
 
-// MPIN
-function start(){
-authDiv.classList.add("hidden");
-mpinScreen.classList.remove("hidden");
+        function setupMPINLogic() {
+            const input = document.getElementById('mpinHiddenInput');
+            const dots = document.querySelectorAll('.mpin-dot');
+            input.focus();
 
-mpinInput.focus();
-mpinInput.oninput=e=>{
-let v=e.target.value;
-document.querySelectorAll(".dot").forEach((d,i)=>{
-d.classList.toggle("fill",i<v.length)
-});
+            input.addEventListener('input', (e) => {
+                const val = e.target.value;
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('filled', i < val.length);
+                });
 
-if(v.length==4){
-if(!mpin){
-localStorage.setItem("mpin",v);
-mpin=v;
-openApp();
-}else if(v==mpin){
-openApp();
-}else{
-alert("Wrong MPIN");
-mpinInput.value="";
-}
-}
-}
-}
+                if(val.length === 4) {
+                    const saved = localStorage.getItem('user_mpin_' + currentUser.id);
+                    if(!saved) {
+                        localStorage.setItem('user_mpin_' + currentUser.id, val);
+                        alert("MPIN Set Successfully!");
+                        openApp();
+                    } else if(val === saved) {
+                        openApp();
+                    } else {
+                        alert("Wrong MPIN!");
+                        input.value = '';
+                        dots.forEach(d => d.classList.remove('filled'));
+                    }
+                }
+            });
+        }
 
-// APP
-function openApp(){
-mpinScreen.classList.add("hidden");
-app.classList.remove("hidden");
-load();
-}
+        // --- APP MAIN LOGIC ---
+        function openApp() {
+            document.getElementById('mpinScreen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            document.getElementById('userName').innerText = currentUser.email.split('@')[0];
+            loadBookings();
+        }
 
-// SAVE
-async function save(){
-let user=(await sb.auth.getUser()).data.user;
+        function openForm() { document.getElementById('bookingSheet').classList.add('open'); }
+        function closeModal() { document.getElementById('bookingSheet').classList.remove('open'); }
 
-let type=custom.value||typeEl.value;
+        function calcRemaining() {
+            const total = parseInt(document.getElementById('fTotal').value) || 0;
+            const adv = parseInt(document.getElementById('fAdv').value) || 0;
+            document.getElementById('fRem').innerText = (total - adv).toLocaleString('en-IN');
+        }
 
-let data={
-user_id:user.id,
-party_name:name.value,
-mobile:mobile.value,
-event_date:date.value,
-start_time:time.value,
-location:loc.value,
-total_amount:+totalAmt.value,
-advance_paid:+advAmt.value,
-notes:notes.value,
-event_type:type
-};
+        // SAVE TO SUPABASE
+        async function saveBooking() {
+            const bookingData = {
+                user_id: currentUser.id,
+                party_name: document.getElementById('fParty').value,
+                mobile: document.getElementById('fMobile').value,
+                event_date: document.getElementById('fDate').value,
+                start_time: document.getElementById('fTime').value,
+                location: document.getElementById('fLoc').value,
+                total_amount: parseInt(document.getElementById('fTotal').value) || 0,
+                advance_paid: parseInt(document.getElementById('fAdv').value) || 0,
+                notes: document.getElementById('fNotes').value
+            };
 
-let {error}=await sb.from("bookings").insert([data]);
-if(error)alert(error.message);
-else{
-alert("Saved");
-closeForm();
-load();
-}
-}
+            const { error } = await supabase.from('bookings').insert([bookingData]);
+            if(error) alert("Error: " + error.message);
+            else {
+                alert("Booking Saved in Supabase!");
+                closeModal();
+                loadBookings();
+                // Clear Form Fields
+            }
+        }
 
-// LOAD
-async function load(){
-let {data}=await sb.from("bookings").select("*");
+        // LOAD FROM SUPABASE
+        async function loadBookings() {
+            const { data, error } = await supabase.from('bookings').select('*').order('event_date', { ascending: true });
+            
+            if(data) {
+                const container = document.getElementById('bookingContainer');
+                container.innerHTML = '';
+                let pendingAmt = 0;
 
-let list=document.getElementById("list");
-list.innerHTML="";
+                data.forEach(b => {
+                    pendingAmt += (b.total_amount - b.advance_paid);
+                    
+                    container.innerHTML += `
+                        <div class="glass booking-card">
+                            <div>
+                                <b style="font-size:18px;">${b.party_name}</b><br>
+                                <small style="color:var(--text-s)">📅 ${b.event_date} | 📍 ${b.location || 'TBD'}</small>
+                            </div>
+                            <div style="text-align:right;">
+                                <b style="color:var(--accent); font-size:18px;">₹${(b.total_amount/1000).toFixed(1)}k</b><br>
+                                <small style="color:var(--pink)">₹${((b.total_amount - b.advance_paid)/1000).toFixed(1)}k left</small>
+                            </div>
+                        </div>
+                    `;
+                });
 
-let total=0,pending=0;
-let grouped={};
+                document.getElementById('statTotal').innerText = data.length;
+                document.getElementById('statPending').innerText = '₹' + (pendingAmt/1000).toFixed(1) + 'k';
+            }
+        }
 
-data.forEach(b=>{
-total+=b.total_amount;
-pending+=b.total_amount-b.advance_paid;
-
-if(!grouped[b.event_date])grouped[b.event_date]=[];
-grouped[b.event_date].push(b);
-});
-
-// DATE GROUP
-Object.keys(grouped).forEach(d=>{
-let html=`<div class="card"><b>${d}</b></div>`;
-
-grouped[d].forEach(b=>{
-let msg=`Booking %0A${b.party_name}%0A₹${b.total_amount}`;
-let wa=`https://wa.me/${b.mobile}?text=${msg}`;
-
-html+=`
-<div class="card">
-${b.party_name}<br>
-₹${b.total_amount}
-<br><a href="${wa}" target="_blank">WhatsApp</a>
-</div>`;
-});
-
-list.innerHTML+=html;
-});
-
-// STATS
-document.getElementById("total").innerText=total;
-document.getElementById("pending").innerText=pending;
-
-// GRAPH
-let labels=[],vals=[];
-Object.keys(grouped).forEach(d=>{
-labels.push(d);
-vals.push(grouped[d].reduce((s,b)=>s+b.total_amount,0));
-});
-
-new Chart(chart,{
-type:"bar",
-data:{labels,datasets:[{data:vals}]}
-});
-}
-
-// UI
-function openForm(){sheet.classList.add("open")}
-function closeForm(){sheet.classList.remove("open")}
-function customEvent(e){
-if(e.value=="custom")custom.classList.remove("hidden")
-}
-
-// LOGOUT
-function logout(){sb.auth.signOut();location.reload()}
-
-// AUTO ELEMENTS
-const emailEl=document.getElementById("email");
-const passEl=document.getElementById("pass");
-const authDiv=document.getElementById("auth");
-const mpinScreen=document.getElementById("mpinScreen");
-const app=document.getElementById("app");
-
-</script>
-
+        function logout() { supabase.auth.signOut(); location.reload(); }
+    </script>
 </body>
 </html>
