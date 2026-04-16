@@ -1,198 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Booking Pro</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Booking Pro MAX</title>
 
-        :root {
-            --bg-primary: #0a0e27;
-            --bg-secondary: #151b3a;
-            --bg-tertiary: #1f2749;
-            --accent-primary: #00d9ff;
-            --accent-secondary: #ff006e;
-            --text-primary: #ffffff;
-            --text-secondary: #b4bcd9;
-            /* Font size badha diya gaya hai */
-            --fs-main: 18px; 
-            --fs-title: 24px;
-        }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        body {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: var(--fs-main);
-            overflow-x: hidden;
-        }
+<style>
+:root{
+--bg:#050816;--card:#151b3a;--accent:#00d9ff;--pink:#ff006e;
+--text:#fff;
+}
+body{margin:0;font-family:sans-serif;background:var(--bg);color:var(--text);}
+.hidden{display:none}
+.container{padding:20px;max-width:500px;margin:auto}
 
-        /* UI Improvements without removing anything */
-        .section-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: var(--fs-title);
-            font-weight: 700;
-            padding: 20px 16px;
-            color: var(--accent-primary);
-        }
+/* UI */
+.card{background:var(--card);padding:15px;border-radius:15px;margin-bottom:10px}
+input,select,textarea{
+width:100%;padding:12px;margin:8px 0;border-radius:10px;
+border:none;background:#1f2749;color:white
+}
+button{padding:12px;border:none;border-radius:10px;font-weight:bold;width:100%}
+.btn{background:var(--accent);color:black}
 
-        .glass-card, .booking-card {
-            background: rgba(30, 41, 82, 0.5);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px;
-            padding: 20px;
-            margin: 12px 16px;
-        }
+/* MPIN */
+.mpin{display:flex;gap:10px;justify-content:center;margin-top:20px}
+.dot{width:15px;height:15px;border:2px solid var(--accent);border-radius:50%}
+.dot.fill{background:var(--accent)}
 
-        /* Inputs ko bada kiya gaya hai taaki clear dikhe */
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 16px;
-            font-size: 17px;
-            border-radius: 12px;
-            background: var(--bg-tertiary);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            margin-top: 8px;
-        }
+/* FAB */
+.fab{
+position:fixed;bottom:80px;right:20px;width:60px;height:60px;
+background:linear-gradient(45deg,#00d9ff,#ff006e);
+border-radius:50%;display:flex;align-items:center;justify-content:center;
+font-size:28px;color:white;
+}
 
-        .btn-auth, .btn-action {
-            padding: 16px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
+/* NAV */
+.nav{
+position:fixed;bottom:0;width:100%;background:#111;
+display:flex;justify-content:space-around;padding:10px
+}
 
-        .btn-auth {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: #000;
-            width: 100%;
-        }
-
-        /* Adsterra Slots - Bina code chede placement */
-        .ad-slot {
-            width: 100%;
-            text-align: center;
-            padding: 10px 0;
-            background: rgba(0,0,0,0.2);
-            margin: 10px 0;
-        }
-
-        /* Bottom Nav Fix */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0; width: 100%;
-            height: 75px;
-            background: var(--bg-secondary);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .nav-item { font-size: 15px; text-align: center; color: var(--text-secondary); }
-        .nav-icon { font-size: 24px; }
-        
-        .hidden { display: none; }
-    </style>
+/* Sheet */
+.sheet{
+position:fixed;bottom:0;width:100%;background:#111;padding:20px;
+transform:translateY(100%);transition:.3s
+}
+.sheet.open{transform:translateY(0)}
+</style>
 </head>
+
 <body>
 
-    <div class="ad-slot">
-        </div>
+<!-- AUTH -->
+<div id="auth" class="container">
+<h2>Smart Booking PRO</h2>
+<input id="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
+<button class="btn" onclick="auth()">Continue</button>
+<p onclick="toggleAuth()">Switch Login/Signup</p>
+</div>
 
-    <div id="app">
-        <div class="section-title">Dashboard</div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px;">
-            <div class="glass-card" style="margin:0; text-align:center;">
-                <small>Total Bookings</small><br><b style="font-size: 22px;">12</b>
-            </div>
-            <div class="glass-card" style="margin:0; text-align:center;">
-                <small>Earnings</small><br><b style="font-size: 22px;">₹45,000</b>
-            </div>
-        </div>
+<!-- MPIN -->
+<div id="mpinScreen" class="container hidden">
+<h3>Enter MPIN</h3>
+<div class="mpin">
+<div class="dot"></div><div class="dot"></div>
+<div class="dot"></div><div class="dot"></div>
+</div>
+<input id="mpinInput" style="opacity:0">
+</div>
 
-        <div class="ad-slot">
-            </div>
+<!-- APP -->
+<div id="app" class="hidden">
 
-        <div class="section-title">Upcoming Bookings</div>
-        <div id="bookingsList">
-            </div>
-    </div>
+<div style="background:black;text-align:center">AD TOP</div>
 
-    <div id="bookingSheet" class="hidden" style="position:fixed; inset:0; background:var(--bg-primary); padding: 20px; overflow-y: auto;">
-        <h2 class="section-title">Add New Booking</h2>
-        
-        <label>Party Name *</label>
-        <input type="text" class="form-input" id="partyName">
+<div class="container">
+<h3>Dashboard</h3>
+<button onclick="logout()">Logout</button>
 
-        <label>Mobile Number</label>
-        <input type="tel" class="form-input" id="mobileNumber">
+<div class="card">
+Total: <b id="total">0</b><br>
+Pending: <b id="pending">0</b>
+</div>
 
-        <label>Event Type *</label>
-        <select class="form-select" id="programType">
-            <option value="DJ">DJ Setup</option>
-            <option value="Wedding">Wedding</option>
-            <option value="Custom">+ Add Custom</option>
-        </select>
+<canvas id="chart"></canvas>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
-            <div>
-                <label>Event Date *</label>
-                <input type="date" class="form-input" id="eventDate">
-            </div>
-            <div>
-                <label>Start Time *</label>
-                <input type="time" class="form-input" id="startTime">
-            </div>
-        </div>
+<div id="list"></div>
+</div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
-            <div>
-                <label>Total Amount *</label>
-                <input type="number" class="form-input" id="totalAmount">
-            </div>
-            <div>
-                <label>Advance Paid</label>
-                <input type="number" class="form-input" id="advanceAmount">
-            </div>
-        </div>
+<div class="fab" onclick="openForm()">+</div>
 
-        <label style="margin-top: 15px; display: block;">Notes / Special Instructions</label>
-        <textarea class="form-textarea" id="notes" rows="4"></textarea>
+<div class="nav">
+<div>Home</div>
+<div onclick="load()">Refresh</div>
+</div>
 
-        <button class="btn-auth" style="margin-top: 20px;">Save Booking</button>
-        <button onclick="document.getElementById('bookingSheet').classList.add('hidden')" style="width: 100%; background: none; color: white; border: none; margin-top: 15px;">Cancel</button>
-    </div>
+<div id="sheet" class="sheet">
+<h3>Add Booking</h3>
+<input id="name" placeholder="Party Name">
+<input id="mobile" placeholder="Mobile">
 
-    <div class="bottom-nav">
-        <div class="nav-item">
-            <div class="nav-icon">📊</div>
-            <div>Dashboard</div>
-        </div>
-        <div class="nav-item">
-            <div class="nav-icon">📋</div>
-            <div>Bookings</div>
-        </div>
-        <div class="nav-item" onclick="document.getElementById('bookingSheet').classList.remove('hidden')">
-            <div class="nav-icon">➕</div>
-            <div>Add</div>
-        </div>
-    </div>
+<select id="type" onchange="customEvent(this)">
+<option>DJ</option>
+<option>Wedding</option>
+<option value="custom">+Custom</option>
+</select>
+<input id="custom" class="hidden" placeholder="Custom Type">
 
-    <script>
-        // Supabase aur baaki functions aapke puraane waale hi use honge.
-        // Maine sirf UI aur font-size ko bada kiya hai.
-    </script>
+<input id="date" type="date">
+<input id="time" type="time">
+<input id="loc" placeholder="Location">
+
+<input id="totalAmt" type="number" placeholder="Total">
+<input id="advAmt" type="number" placeholder="Advance">
+
+<textarea id="notes"></textarea>
+
+<button class="btn" onclick="save()">Save</button>
+</div>
+
+</div>
+
+<script>
+// SUPABASE
+const url="YOUR_URL";
+const key="YOUR_KEY";
+const sb=supabase.createClient(url,key);
+
+let isLogin=true;
+let mpin=localStorage.getItem("mpin");
+
+// AUTH
+async function auth(){
+let email=emailEl.value,pass=passEl.value;
+
+if(isLogin){
+let {error}=await sb.auth.signInWithPassword({email,password:pass});
+if(error)return alert(error.message);
+start();
+}else{
+await sb.auth.signUp({email,password:pass});
+alert("Signup done");
+}
+}
+
+function toggleAuth(){isLogin=!isLogin}
+
+// MPIN
+function start(){
+authDiv.classList.add("hidden");
+mpinScreen.classList.remove("hidden");
+
+mpinInput.focus();
+mpinInput.oninput=e=>{
+let v=e.target.value;
+document.querySelectorAll(".dot").forEach((d,i)=>{
+d.classList.toggle("fill",i<v.length)
+});
+
+if(v.length==4){
+if(!mpin){
+localStorage.setItem("mpin",v);
+mpin=v;
+openApp();
+}else if(v==mpin){
+openApp();
+}else{
+alert("Wrong MPIN");
+mpinInput.value="";
+}
+}
+}
+}
+
+// APP
+function openApp(){
+mpinScreen.classList.add("hidden");
+app.classList.remove("hidden");
+load();
+}
+
+// SAVE
+async function save(){
+let user=(await sb.auth.getUser()).data.user;
+
+let type=custom.value||typeEl.value;
+
+let data={
+user_id:user.id,
+party_name:name.value,
+mobile:mobile.value,
+event_date:date.value,
+start_time:time.value,
+location:loc.value,
+total_amount:+totalAmt.value,
+advance_paid:+advAmt.value,
+notes:notes.value,
+event_type:type
+};
+
+let {error}=await sb.from("bookings").insert([data]);
+if(error)alert(error.message);
+else{
+alert("Saved");
+closeForm();
+load();
+}
+}
+
+// LOAD
+async function load(){
+let {data}=await sb.from("bookings").select("*");
+
+let list=document.getElementById("list");
+list.innerHTML="";
+
+let total=0,pending=0;
+let grouped={};
+
+data.forEach(b=>{
+total+=b.total_amount;
+pending+=b.total_amount-b.advance_paid;
+
+if(!grouped[b.event_date])grouped[b.event_date]=[];
+grouped[b.event_date].push(b);
+});
+
+// DATE GROUP
+Object.keys(grouped).forEach(d=>{
+let html=`<div class="card"><b>${d}</b></div>`;
+
+grouped[d].forEach(b=>{
+let msg=`Booking %0A${b.party_name}%0A₹${b.total_amount}`;
+let wa=`https://wa.me/${b.mobile}?text=${msg}`;
+
+html+=`
+<div class="card">
+${b.party_name}<br>
+₹${b.total_amount}
+<br><a href="${wa}" target="_blank">WhatsApp</a>
+</div>`;
+});
+
+list.innerHTML+=html;
+});
+
+// STATS
+document.getElementById("total").innerText=total;
+document.getElementById("pending").innerText=pending;
+
+// GRAPH
+let labels=[],vals=[];
+Object.keys(grouped).forEach(d=>{
+labels.push(d);
+vals.push(grouped[d].reduce((s,b)=>s+b.total_amount,0));
+});
+
+new Chart(chart,{
+type:"bar",
+data:{labels,datasets:[{data:vals}]}
+});
+}
+
+// UI
+function openForm(){sheet.classList.add("open")}
+function closeForm(){sheet.classList.remove("open")}
+function customEvent(e){
+if(e.value=="custom")custom.classList.remove("hidden")
+}
+
+// LOGOUT
+function logout(){sb.auth.signOut();location.reload()}
+
+// AUTO ELEMENTS
+const emailEl=document.getElementById("email");
+const passEl=document.getElementById("pass");
+const authDiv=document.getElementById("auth");
+const mpinScreen=document.getElementById("mpinScreen");
+const app=document.getElementById("app");
+
+</script>
+
 </body>
 </html>
